@@ -29,8 +29,8 @@ import unicodedata
 import zipfile
 
 db_filename = "epcad.db"
-use_file_columns = False
-url = "http://www.epcad.org/mappingexports/database.zip"
+use_file_columns = True
+url = "http://protest.epcad.org/mappingexports/database.zip"
 
 
 # Expected columns if use_file_columns is set to False.
