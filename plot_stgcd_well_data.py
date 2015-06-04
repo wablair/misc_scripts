@@ -22,9 +22,9 @@ mpl.rcParams['patch.antialiased'] = True
 mpl.rcParams['axes.color_cycle'] = "348ABD, 7A68A6, A60628, 467821, " + \
     "CF4457, 188487, E24A33"
 
-output_dir = "/var/www/water_data/water_data/static/graphs/"
+output_dir = ""
 
-db = "/var/www/water_data/water_data/water_data/default.db"
+db = ""
 conn = sqlite3.connect(db)
 
 c = conn.cursor()
