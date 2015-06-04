@@ -1,4 +1,20 @@
 #!/usr/bin/env python2.7
+
+# Copyright (c) 2014 William A Blair <wablair@awblair.com>
+#
+# Permission to use, copy, modify, and distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+
+# Create 30 day, one year, and historical plots of well water levels for STGCD
+# Django site.
+
 import calendar
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -29,11 +45,6 @@ conn = sqlite3.connect(db)
 
 c = conn.cursor()
 
-#now = calendar.timegm(datetime.now().utctimetuple())
-#thirty_days_previous = calendar.timegm((datetime.now() - timedelta(30)).
-#  utctimetuple())
-#year_previous = calendar.timegm((datetime.now() - timedelta(365)).
-#  utctimetuple())
 now = datetime.now()
 thirty_days_previous = now - timedelta(30)
 year_previous = now - timedelta(365)
