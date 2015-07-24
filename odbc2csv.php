@@ -1,5 +1,5 @@
 <?php
-$db = "";
+$db = "LICENSES";
 $user = "";
 $password = "";
 
@@ -22,7 +22,10 @@ $tables = array();
 
 while (odbc_fetch_row($result))
 	array_push($tables, odbc_result($result, "TABLE_NAME") );
-   
+
+$tables = array("Applications", "Entities", "EntitiesContacts", "ep_SoftwarePermissions", "ep_UserSoftwarePermissions", "Licenses", "LicensesContacts", "LicensesEvents", "LicensesImages", "LicensesNotes", "Lookup_Types", "Users");
+print_r($tables);
+
 foreach ($tables as $table) {
 	$handle = fopen($table . ".csv", "w");
 
@@ -44,7 +47,7 @@ foreach ($tables as $table) {
 
 	foreach ($column_names as $column) {
 		$result = odbc_exec($conn, "select " . $column . " from " .
-		    $table;
+		    $table);
 
 		if (odbc_num_row($result) == 0)
 			unset($column_names[$x]);
