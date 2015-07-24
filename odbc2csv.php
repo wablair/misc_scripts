@@ -1,5 +1,5 @@
 <?php
-$db = "LICENSES";
+$db = "";
 $user = "";
 $password = "";
 
