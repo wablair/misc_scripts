@@ -23,9 +23,6 @@ $tables = array();
 while (odbc_fetch_row($result))
 	array_push($tables, odbc_result($result, "TABLE_NAME") );
 
-$tables = array("Applications", "Entities", "EntitiesContacts", "ep_SoftwarePermissions", "ep_UserSoftwarePermissions", "Licenses", "LicensesContacts", "LicensesEvents", "LicensesImages", "LicensesNotes", "Lookup_Types", "Users");
-print_r($tables);
-
 foreach ($tables as $table) {
 	$handle = fopen($table . ".csv", "w");
 
