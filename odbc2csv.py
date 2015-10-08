@@ -6,9 +6,10 @@ cur = conn.cursor()
 
 tables = []
 
-cur.tables("%", "", "")
+cur.execute("select * from sys.tables")
+
 for row in cur.fetchall():
-    tables.append(row[2])
+    tables.append(row[0])
 
 for table in tables:
     cur.execute("select * from %s" % table)
