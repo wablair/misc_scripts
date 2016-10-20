@@ -19,7 +19,7 @@ for table in tables:
     for d in cur.description:
         column_names.append(d[0])
 
-    file = open("%s.csv" % table, "w")
+    file = open("%s.csv" % table, "wb")
     writer = csv.writer(file)
     writer.writerow(column_names)
 
