@@ -1,7 +1,7 @@
 import pypyodbc
 import csv
 
-conn = pypyodbc.connect("DSN=")
+conn = pypyodbc.connect("DSN=HOSS_DB")
 cur = conn.cursor()
 
 tables = []
@@ -12,14 +12,17 @@ for row in cur.fetchall():
     tables.append(row[0])
 
 for table in tables:
-    cur.execute("select * from %s" % table)
+    print(table)
+
+    cur.execute("select * from {}".format(table))
 
     column_names = []
 
     for d in cur.description:
         column_names.append(d[0])
 
-    file = open("%s.csv" % table, "wb")
+#    file = open("{}.csv".format(table), "w", encoding="ISO-8859-1")
+    file = open("{}.csv".format(table), "w", encoding="utf-8")
     writer = csv.writer(file)
     writer.writerow(column_names)
 
