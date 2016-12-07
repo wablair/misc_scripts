@@ -23,7 +23,7 @@ for table in tables:
 
 #    file = open("{}.csv".format(table), "w", encoding="ISO-8859-1")
     file = open("{}.csv".format(table), "w", encoding="utf-8")
-    writer = csv.writer(file)
+    writer = csv.writer(file, lineterminator='\n')
     writer.writerow(column_names)
 
     for row in cur.fetchall():
