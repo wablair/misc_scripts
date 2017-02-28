@@ -21,9 +21,6 @@ config = {
     'database': mysql_db
 }
 
-processes = ['ccdd5', 'hidcc_bridge', 'hidcc_gate', 'hidcc_level',
-  'hidcc_pumphouse']
-
 def dbfwriter(f, fieldnames, fieldspecs, records):
     """
     File f should be open for writing in a binary mode.
@@ -125,7 +122,7 @@ mysql_cur.close()
 mysql_conn.close()
 
 if not multi_db:
-    conn = pypyodbc.connect("DSN=hidcc_backup_db")
+    conn = pypyodbc.connect("DSN=")
     cur = conn.cursor()
 
 for id, category in categories.items():
