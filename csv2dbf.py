@@ -1,13 +1,13 @@
 import csv
 import datetime
-import dbf
 import getopt
 import io
 import struct
 import sys
 
 def print_help():
-    print("csv2dbf.py -i <input file> -o <output file>")
+    print("csv2dbf.py -i <input file> -o <dbf output file> -c " +
+      "<csv output file>")
     sys.exit()
 
 """
@@ -46,13 +46,15 @@ def dbfwriter(f, fieldnames, fieldspecs, records):
     numfields = len(fieldspecs)
     lenheader = numfields * 32 + 33
     lenrecord = sum(field[1] for field in fieldspecs) + 1
-    hdr = struct.pack('<BBBBLHH20x', ver, yr, mon, day, numrec, lenheader,
+    hdr = struct.pack(b'<BBBBLHH20x', ver, yr, mon, day, numrec, lenheader,
       lenrecord)
 
     f.write(hdr)
                       
     # field specs
     for name, (typ, size, deci) in zip(fieldnames, fieldspecs):
+        if len(name) > 10:
+            name = name[10:]
         name = name.ljust(11, '\x00')
         fld = struct.pack(b'<11sc4xBB14x', bytearray(name, 'utf-8'),
           str.encode(typ), size, deci)
@@ -69,6 +71,8 @@ def dbfwriter(f, fieldnames, fieldspecs, records):
                 value = str(value).rjust(size, ' ')
             elif typ == 'D':
                 value = value.strftime('%Y%m%d')
+                if len(value) != 8:
+                    value = '00000000'
             elif typ == 'L':
                 value = str(value)[0].upper()
             else:
@@ -83,10 +87,11 @@ def main(argv):
 
     inputfile = 'properties.seq'
     outputfile = 'properties.dbf'
+    csvoutputfile = 'properties.csv'
 
     try:
-        opts, args = getopt.getopt(argv, "?hdi:o:", ["inputfile=",
-          "outputfile="])
+        opts, args = getopt.getopt(argv, "?hdi:o:c:", ["inputfile=",
+          "outputfile=", "csvoutput="])
     except getopt.GetoptError:
         print_help()
 
@@ -97,29 +102,48 @@ def main(argv):
             inputfile = arg
         elif opt in ("-o", "--outputfile"):
             outputfile = arg
+        elif opt in ("-c", "--csvoutput"):
+            csvoutputfile = arg
 
     input = open(inputfile, "r", encoding="utf-8")
-    input_reader = csv.reader((line.replace('\0', '').strip() for line
-      in input))
+    input_reader = csv.reader(line.replace('\0', '') for line
+      in input)
 
     row_count = 0
 
     header = []
     data = []
 
+    num_columns = -1
+
     for row in input_reader:
+        new_row = []
+
+        for element in row:
+            new_row.append(element.strip())
+
+        num_elements = len(new_row)
+
+        if (num_columns != -1 and num_elements != num_columns):
+            if (num_elements < num_columns):
+                new_row = new_row + [''] * (num_columns - num_elements)
+            elif (num_elements > num_columns):
+                new_row = new_row[num_columns:]
 
         if (row_count == 0):
-            header = row
+            header = new_row
+            num_columns = len(header)
         else:
-            data.append(row)
+            data.append(new_row)
 
         row_count = row_count + 1
 
-    max_lens = [0] * len(header)
+    max_lens = [0] * num_columns
 
     for datum in data:
         x = 0
+
+        data[x] = datum
         for element in datum:
             if (len(element) > max_lens[x]):
                 max_lens[x] = len(element)
@@ -151,7 +175,7 @@ def main(argv):
     
     output.close()
 
-    output = open(inputfile[:-4] + ".csv", "w", encoding="utf-8")
+    output = open(csvoutputfile, "w", encoding="utf-8")
     writer = csv.writer(output, lineterminator="\n")
 
     writer.writerow(fields_used)
