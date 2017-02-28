@@ -13,6 +13,7 @@ def print_help():
 """
 def dbfwriter() from:
 https://code.activestate.com/recipes/362715-dbf-reader-and-writer/
+by  Raymond Hettinger
 """
 
 def dbfwriter(f, fieldnames, fieldspecs, records):
