@@ -2,3 +2,15 @@
 
 RewriteCond %{HTTPS} off
 RewriteRule .* https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+httpd.conf, forward all to https except acme-challenge:
+server $domain {
+        listen on * port 80
+        location "/.well-known/acme-challenge/*" {
+                root "/acme"
+                root strip 2
+        }
+        location "*[^/.well-known/acme-challenge/*]*" {
+                block return 301 "https://$SERVER_NAME$REQUEST_URI"
+        }
+}
