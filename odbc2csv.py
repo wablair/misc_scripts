@@ -1,15 +1,15 @@
 import pypyodbc
 import csv
 
-conn = pypyodbc.connect("DSN=HOSS_DB")
+conn = pypyodbc.connect("")
 cur = conn.cursor()
 
 cur.execute("select * from sys.tables")
 
+tables = []
+
 for row in cur.fetchall():
     tables.append(row[0])
-
-tables = ["land"]
 
 for table in tables:
     print(table)
