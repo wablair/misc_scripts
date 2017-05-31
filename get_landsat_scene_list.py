@@ -1,3 +1,5 @@
+#!/usr/local/bin/python3.6
+
 # Copyright (c) 2017 William A Blair <wablair@awblair.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
@@ -12,8 +14,9 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-# This script fetches the scene_list.gz from Amazon's landsat-pds and then
-# gets TIFFs based on specified row, path, and band(s)
+# This script fetches the scene_list.gz from Amazon's landsat-pds and creates a
+# SQLite database based off of it.
+
 
 import csv
 import io
@@ -26,7 +29,12 @@ import unicodedata
 import gzip
 
 db_filename = "scene_list.db"
+csv_filename = "scene_list.csv"
 url = " https://landsat-pds.s3.amazonaws.com/c1/L8/scene_list.gz"
+output_dir = "/var/www/htdocs/landsat/"
+
+if output_dir[-1] != "/":
+    output_dir = output_dir + "/"
 
 fp = re.compile('[-+]?[0-9]*\.?[0-9]+')
 
@@ -37,7 +45,22 @@ def isfloat(str):
 
     return False
 
-r = requests.get(url)
+try:
+    r = requests.get(url)
+except:
+    quit()
+
+# Delete old SQLite database.
+try:
+    os.remove(output_dir + db_filename)
+except:
+    pass
+
+# Delete old CSV file.
+try:
+    os.remove(output_dir + csv_filename)
+except:
+    pass
 
 data = gzip.decompress(r.content)
 
@@ -45,10 +68,13 @@ landsats = []
 
 csv_file = io.StringIO(data.decode("utf-8"))
 csv_reader = csv.reader(csv_file, lineterminator="\n")
+csv_output_file = open(output_dir + csv_filename, "w", encoding="utf-8")
+csv_writer = csv.writer(csv_output_file, lineterminator="\n")
 
 x = 0
 
 for row in csv_reader:
+    csv_writer.writerow(row)
     landsats.append(row)
     x = x + 1
 
@@ -108,13 +134,7 @@ query = query[:-2]
 query = query + ")"
 
 
-# Delete old SQLite database.
-try:
-    os.remove(db_filename)
-except:
-    pass
-
-conn = sqlite3.connect(db_filename)
+conn = sqlite3.connect(output_dir + db_filename)
 
 c = conn.cursor()
 
