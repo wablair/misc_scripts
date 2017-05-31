@@ -30,7 +30,8 @@ import zipfile
 
 db_filename = "epcad.db"
 use_file_columns = True
-url = "http://protest.epcad.org/mappingexports/database.zip"
+#url = "http://protest.epcad.org/mappingexports/database.zip"
+url = "http://protest.epcad.org/mappingexports/epcad731.zip"
 
 
 # Expected columns if use_file_columns is set to False.
@@ -65,10 +66,13 @@ columns = [
   'situs_zip',
   'exemption_list',
   'entity_list',
-  'previous_assessed_val',
   'current_assessed_val',
-  'previous_appraised_val',
   'current_appraised_val']
+
+#  'previous_assessed_val',
+#  'current_assessed_val',
+#  'previous_appraised_val',
+#  'current_appraised_val']
 
 fp = re.compile('[-+]?[0-9]*\.?[0-9]+')
 
