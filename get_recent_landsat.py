@@ -23,6 +23,7 @@ import requests
 import sqlite3
 import string
 
+path_row = [[32, 38], [32, 39], [33, 38], [33, 37]]
 path = 32
 row = 38
 bands = [4, 5, 8]
@@ -34,39 +35,54 @@ output_dir = "/var/www/htdocs/landsat/"
 if output_dir[-1] != "/":
     output_dir = output_dir + "/"
 
-conn = sqlite3.connect(db_filename)
+try:
+    conn = sqlite3.connect(db_filename)
+except:
+    print("Could not open db.")
+    quit()
 
 c = conn.cursor()
-query = ("select productId, cloudCover, download_url from scene_list where " +
-  "path = {} and row = {} and productId like '%_T1' and cloudCover <= {} " +
-  "order by productId desc limit 1").format(path, row, max_cloud)
 
-try:
-    c.execute(query)
-except:
-    print(query)
-    conn.close()
-    quit()
+queries = []
 
-row = c.fetchone()
+for pr in path_row:
+    query = ("select productId, cloudCover, download_url from scene_list " +
+      "where path = {} and row = {} and productId like '%_T1' and " +
+      "cloudCover <= {} order by productId desc").format(pr[0], pr[1],
+      max_cloud)
+    queries.append(query)
 
-if (row == None):
-    conn.close()
-    quit()
-
-url = row[2].replace("index.html", "")
-
-for band in bands:
-    filename = row[0] + ("_B{}").format(band) + ".TIF"
-    tiff_url = url + filename
-    output = output_dir + filename
-    if os.path.isfile(output):
+for query in queries:
+    try:
+        c.execute(query)
+    except:
+        print("Could not execute: " + query)
         continue
-    print(("Getting {}").format(tiff_url))
-    r = requests.get(tiff_url, stream=True)
-    r.raise_for_status()
-    with open(output, 'wb') as handle:
-        for block in r.iter_content(1024):
-            handle.write(block)
+
+    urls = []
+
+    for row in c.fetchall():
+        url = row[2].replace("index.html", "")
+        urls.append(url)
+
+    for url in urls:
+        for band in bands:
+            filename = row[0] + ("_B{}").format(band) + ".TIF"
+            tiff_url = url + filename
+            output = output_dir + filename
+
+            if os.path.isfile(output):
+                continue
+
+            print(("Getting {}").format(tiff_url))
+            try:
+                r = requests.get(tiff_url, stream=True)
+                r.raise_for_status()
+            except:
+                continue
+
+            with open(output, 'wb') as handle:
+                for block in r.iter_content(1024):
+                    handle.write(block)
 
 conn.close()
