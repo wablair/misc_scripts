@@ -1,12 +1,11 @@
-!#/usr/bin/env python3.6
-
+import os
 import pypyodbc
 import re
 import sqlite3
 
-output_db = ""
+output_db = ".db"
 
-fp = re.compile('[-+]?[0-9]*\.?[0-9]+')
+fp = re.compile('^[-+]?[0-9]*\.?[0-9]+$')
 
 def isfloat(str):
 
@@ -15,11 +14,16 @@ def isfloat(str):
 
     return False
 
+try:
+    os.remove(output_db)
+except:
+    print("Could not delete db.")
+
 conn = pypyodbc.connect("")
 cur = conn.cursor()
 
 output_conn = sqlite3.connect(output_db)
-output_cur = conn.cursor()
+output_cur = output_conn.cursor()
 
 cur.execute("select * from sys.tables")
 
@@ -28,9 +32,9 @@ tables = []
 for row in cur.fetchall():
     tables.append(row[0])
 
-for table in tables:
-    print(table)
+tables = ['owners', 'canals', 'orders', 'crops', 'ordersdetailcrops']
 
+for table in tables:
     cur.execute("select * from {}".format(table))
 
     column_names = []
@@ -38,34 +42,37 @@ for table in tables:
     for d in cur.description:
         column_names.append(d[0])
 
-    x = 0
-
-    for row in cur.fetchall():
-        table_data.append(row)
-        x = x + 1
-
-    max_len = 0
-
     num_fields = len(column_names)
 
     is_digit = [True] * num_fields
     is_float = [True] * num_fields
     is_string = [False] * num_fields
 
-    for datum in table_data:
+    x = 0
+
+    table_data = []
+
+    for row in cur.fetchall():
+        temp_row = []
 
         y = 0
 
-        for entry in datum:
+        for entry in row:
+            str_entry = str(entry)
+            if str_entry == 'None':
+                str_entry = ''
 
-            try:
-                if len(entry) != 0:
-                    is_digit[y] = is_digit[y] and entry.isdigit()
-                    is_float[y] = is_float[y] and isfloat(entry)
-            except:
-                print(entry)
+            if len(str_entry) != 0:
+                is_digit[y] = is_digit[y] and str_entry.isdigit()
+                is_float[y] = is_float[y] and isfloat(str_entry)
+
+            temp_row.append(str_entry)
 
             y = y + 1
+
+        table_data.append(temp_row)
+
+        x = x + 1
 
     for x in range(num_fields):
         if is_digit[x] and is_float[x]:
@@ -114,7 +121,11 @@ for table in tables:
     insert_query = insert_query[:-1]
     insert_query = insert_query + ")"
 
-    output_cur.executemany(insert_query, table_data)
+    for datum in table_data:
+        try:
+            output_cur.execute(insert_query, datum)
+        except:
+            print(query)
 
     output_conn.commit()
 
