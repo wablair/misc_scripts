@@ -36,7 +36,7 @@ output_dir = "/var/www/htdocs/landsat/"
 if output_dir[-1] != "/":
     output_dir = output_dir + "/"
 
-fp = re.compile('[-+]?[0-9]*\.?[0-9]+')
+fp = re.compile('^[-+]?[0-9]*\.?[0-9]+$')
 
 def isfloat(str):
 
@@ -132,7 +132,6 @@ for col in columns:
 query = query[:-2]
 
 query = query + ")"
-
 
 conn = sqlite3.connect(output_dir + db_filename)
 
